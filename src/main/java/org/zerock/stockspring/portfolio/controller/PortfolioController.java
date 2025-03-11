@@ -1,24 +1,29 @@
 package org.zerock.stockspring.portfolio.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.zerock.stockspring.portfolio.dto.BalanceResponseDTO;
+import org.zerock.stockspring.portfolio.service.PortfolioService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/domestic-stock")
+@Log4j2
+@RequestMapping("/portfolio")
 public class PortfolioController {
 
-//    private final PortfolioService portfolioService;
+    private final PortfolioService portfolioService;
 
-    //주식잔고조회
-    @GetMapping("/trading")
-    public ResponseEntity<tmp> getBalance(){
-        tmp tmp = portfolioService.findBalance();
-        return new ResponseEntity<>(tmp, HttpStatus.OK);
+    @GetMapping("/totest")
+    public ResponseEntity<BalanceResponseDTO> getBalance(){
+        BalanceResponseDTO response = portfolioService.getBalanceService();
+        log.info("테스트");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 }
