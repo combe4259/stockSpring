@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주식 현재가 조회</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .stock-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .stock-title {
+            flex-grow: 1;
+        }
+        .stock-code {
+            color: #666;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .positive { color: #2e7d32; }
+        .negative { color: #c62828; }
+        .unchanged { color: #424242; }
+        .section {
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            width: 40%;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        .stock-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-bar button:hover {
+            background-color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>주식 현재가 조회</h1>
+
+    <div class="search-bar">
+        <input type="text" id="stockCode" placeholder="종목코드 입력 (예: 005930)" value="005930">
+        <button id="searchButton">조회</button>
+    </div>
+
+    <div id="loading" class="loading">데이터를 불러오는 중...</div>
+
+    <div id="content" style="display: none;">
+        <div class="stock-header">
+            <h2 class="stock-title" id="stockName">삼성전자</h2>
+            <span class="stock-code" id="stockCode">005930</span>
+        </div>
+
+        <div class="section">
+            <div class="summary-cards">
+                <div class="card">
+                    <div class="card-title">현재가</div>
+                    <div class="card-value" id="currentPrice">-</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">전일대비</div>
+                    <div class="card-value" id="priceChange">-</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">등락률</div>
+                    <div class="card-value" id="changeRate">-</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">거래량</div>
+                    <div class="card-value" id="tradeVolume">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>가격 정보</h2>
+            <table>
+                <tr>
+                    <th>시가</th>
+                    <td id="openPrice">-</td>
+                </tr>
+                <tr>
+                    <th>고가</th>
+                    <td id="highPrice">-</td>
+                </tr>
+                <tr>
+                    <th>저가</th>
+                    <td id="lowPrice">-</td>
+                </tr>
+                <tr>
+                    <th>상한가</th>
+                    <td id="upperLimit">-</td>
+                </tr>
+                <tr>
+                    <th>하한가</th>
+                    <td id="lowerLimit">-</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>종목 정보</h2>
+            <div class="stock-info-grid">
+                <div>
+                    <table>
+                        <tr>
+                            <th>PER</th>
+                            <td id="per">-</td>
+                        </tr>
+                        <tr>
+                            <th>PBR</th>
+                            <td id="pbr">-</td>
+                        </tr>
+                        <tr>
+                            <th>EPS</th>
+                            <td id="eps">-</td>
+                        </tr>
+                        <tr>
+                            <th>BPS</th>
+                            <td id="bps">-</td>
+                        </tr>
+                        <tr>
+                            <th>시가총액</th>
+                            <td id="marketCap">-</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <table>
+                        <tr>
+                            <th>52주 최고가</th>
+                            <td id="high52w">-</td>
+                        </tr>
+                        <tr>
+                            <th>52주 최고가 일자</th>
+                            <td id="high52wDate">-</td>
+                        </tr>
+                        <tr>
+                            <th>52주 최저가</th>
+                            <td id="low52w">-</td>
+                        </tr>
+                        <tr>
+                            <th>52주 최저가 일자</th>
+                            <td id="low52wDate">-</td>
+                        </tr>
+                        <tr>
+                            <th>거래대금</th>
+                            <td id="tradeValue">-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchButton = document.getElementById('searchButton');
+        const stockCodeInput = document.getElementById('stockCode');
+
+        // 기본 삼성전자 조회
+        fetchStockQuote('005930');
+
+        // 검색 버튼 이벤트
+        searchButton.addEventListener('click', function() {
+            const code = stockCodeInput.value.trim();
+            if (code) {
+                fetchStockQuote(code);
+            }
+        });
+
+        // Enter 키 이벤트
+        stockCodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const code = stockCodeInput.value.trim();
+                if (code) {
+                    fetchStockQuote(code);
+                }
+            }
+        });
+    });
+
+    async function fetchStockQuote(stockCode) {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('content').style.display = 'none';
+
+        try {
+            // API 호출 경로는 실제 구현에 맞게 수정 필요
+            const response = await fetch(`/domestic-stock/quotations`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            displayStockQuote(data, stockCode);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        } catch (error) {
+            console.error('데이터를 가져오는 중 오류 발생:', error);
+            document.getElementById('loading').textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
+        }
+    }
+
+    function displayStockQuote(data, stockCode) {
+        if (!data || !data.output) {
+            document.getElementById('loading').textContent = '종목 정보를 찾을 수 없습니다.';
+            return;
+        }
+
+        const quote = data.output;
+
+        // 종목 정보 표시
+        document.getElementById('stockName').textContent = quote.bstp_kor_isnm;
+        document.getElementById('stockCode').textContent = quote.stck_shrn_iscd;
+
+        // 주가 정보
+        document.getElementById('currentPrice').textContent = formatNumber(quote.stck_prpr) + '원';
+
+        // 전일대비 및 등락률
+        const priceChange = parseInt(quote.prdy_vrss);
+        let priceChangeText = '';
+        let changeClass = '';
+
+        if (quote.prdy_vrss_sign === '1' || quote.prdy_vrss_sign === '2') {
+            // 상승
+            priceChangeText = '▲ ' + formatNumber(Math.abs(priceChange)) + '원';
+            changeClass = 'positive';
+        } else if (quote.prdy_vrss_sign === '4' || quote.prdy_vrss_sign === '5') {
+            // 하락
+            priceChangeText = '▼ ' + formatNumber(Math.abs(priceChange)) + '원';
+            changeClass = 'negative';
+        } else {
+            // 보합
+            priceChangeText = '0원';
+            changeClass = 'unchanged';
+        }
+
+        document.getElementById('priceChange').textContent = priceChangeText;
+        document.getElementById('priceChange').className = 'card-value ' + changeClass;
+
+        const changeRate = quote.prdy_ctrt + '%';
+        document.getElementById('changeRate').textContent = changeRate;
+        document.getElementById('changeRate').className = 'card-value ' + changeClass;
+
+        // 거래량
+        document.getElementById('tradeVolume').textContent = formatNumber(quote.acml_vol) + '주';
+
+        // 가격 정보
+        document.getElementById('openPrice').textContent = formatNumber(quote.stck_oprc) + '원';
+        document.getElementById('highPrice').textContent = formatNumber(quote.stck_hgpr) + '원';
+        document.getElementById('lowPrice').textContent = formatNumber(quote.stck_lwpr) + '원';
+        document.getElementById('upperLimit').textContent = formatNumber(quote.stck_mxpr) + '원';
+        document.getElementById('lowerLimit').textContent = formatNumber(quote.stck_llam) + '원';
+
+        // 종목 정보
+        document.getElementById('per').textContent = quote.per;
+        document.getElementById('pbr').textContent = quote.pbr;
+        document.getElementById('eps').textContent = formatNumber(quote.eps);
+        document.getElementById('bps').textContent = formatNumber(quote.bps);
+        document.getElementById('marketCap').textContent = calcMarketCap(quote.hts_avls) + '억원';
+
+        // 52주 정보
+        document.getElementById('high52w').textContent = formatNumber(quote.w52_hgpr) + '원';
+        document.getElementById('high52wDate').textContent = formatDate(quote.w52_hgpr_date);
+        document.getElementById('low52w').textContent = formatNumber(quote.w52_lwpr) + '원';
+        document.getElementById('low52wDate').textContent = formatDate(quote.w52_lwpr_date);
+
+        // 거래대금
+        document.getElementById('tradeValue').textContent = formatLargeNumber(quote.acml_tr_pbmn) + '원';
+    }
+
+    function formatNumber(num) {
+        if (!num) return '0';
+        return new Intl.NumberFormat('ko-KR').format(Number(num));
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr || dateStr.length !== 8) return '-';
+        const year = dateStr.substring(0, 4);
+        const month = dateStr.substring(4, 6);
+        const day = dateStr.substring(6, 8);
+        return `${year}년 ${month}월 ${day}일`;
+    }
+
+    function calcMarketCap(avls) {
+        if (!avls) return '0';
+        // 시가총액은 문자열로 반환되며, 단위가 다를 수 있음
+        return formatNumber(avls);
+    }
+
+    function formatLargeNumber(num) {
+        if (!num) return '0';
+        const n = Number(num);
+        if (n >= 1000000000000) {
+            return (n / 1000000000000).toFixed(2) + '조';
+        } else if (n >= 100000000) {
+            return (n / 100000000).toFixed(2) + '억';
+        } else if (n >= 10000) {
+            return (n / 10000).toFixed(2) + '만';
+        } else {
+            return formatNumber(n);
+        }
+    }
+</script>
+</body>
+</html>

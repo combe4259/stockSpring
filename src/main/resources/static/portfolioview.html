@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포트폴리오 현황</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .positive { color: #2e7d32; }
+        .negative { color: #c62828; }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>포트폴리오 현황</h1>
+
+    <div id="loading" class="loading">데이터를 불러오는 중...</div>
+
+    <div id="content" style="display: none;">
+        <h2>계좌 요약</h2>
+        <div class="summary-cards" id="summary-cards"></div>
+
+        <h2>보유 종목</h2>
+        <table id="holdings-table">
+            <thead>
+            <tr>
+                <th>종목코드</th>
+                <th>종목명</th>
+                <th>매매구분</th>
+                <th>보유수량</th>
+                <th>매입평균가</th>
+                <th>현재가</th>
+                <th>평가금액</th>
+                <th>평가손익</th>
+                <th>수익률(%)</th>
+            </tr>
+            </thead>
+            <tbody id="holdings-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchPortfolio();
+    });
+
+    async function fetchPortfolio() {
+        try {
+            const response = await fetch('/portfolio/totest');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            displayPortfolioData(data);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        } catch (error) {
+            console.error('데이터를 가져오는 중 오류 발생:', error);
+            document.getElementById('loading').textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
+        }
+    }
+
+    function displayPortfolioData(data) {
+        // 계좌 요약 정보 표시
+        const summaryCards = document.getElementById('summary-cards');
+        const accountInfo = data.output2[0];
+
+        const summaryItems = [
+            { title: '총 평가금액', value: formatNumber(accountInfo.tot_evlu_amt) + '원' },
+            { title: '예수금', value: formatNumber(accountInfo.dnca_tot_amt) + '원' },
+            { title: '유가증권 평가금액', value: formatNumber(accountInfo.scts_evlu_amt) + '원' },
+            {
+                title: '총 평가손익',
+                value: formatNumber(accountInfo.evlu_pfls_smtl_amt) + '원',
+                class: Number(accountInfo.evlu_pfls_smtl_amt) >= 0 ? 'positive' : 'negative'
+            }
+        ];
+
+        summaryItems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                    <div class="card-title">${item.title}</div>
+                    <div class="card-value ${item.class || ''}">${item.value}</div>
+                `;
+            summaryCards.appendChild(card);
+        });
+
+        // 보유 종목 표시
+        const holdingsBody = document.getElementById('holdings-body');
+        data.output1.forEach(item => {
+            const row = document.createElement('tr');
+            const profitClass = Number(item.evlu_pfls_amt) >= 0 ? 'positive' : 'negative';
+
+            row.innerHTML = `
+                    <td>${item.pdno}</td>
+                    <td>${item.prdt_name}</td>
+                    <td>${item.trad_dvsn_name}</td>
+                    <td>${formatNumber(item.hldg_qty)}</td>
+                    <td>${formatNumber(item.pchs_avg_pric)}</td>
+                    <td>${formatNumber(item.prpr)}</td>
+                    <td>${formatNumber(item.evlu_amt)}</td>
+                    <td class="${profitClass}">${formatNumber(item.evlu_pfls_amt)}</td>
+                    <td class="${profitClass}">${item.evlu_pfls_rt}</td>
+                `;
+            holdingsBody.appendChild(row);
+        });
+    }
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('ko-KR').format(Number(num));
+    }
+</script>
+</body>
+</html>
