@@ -20,7 +20,7 @@ public class AccessTokenService {
     private final ApiConfig apiConfig;
     private final RestTemplate restTemplate;
 
-    public String accessToken ="1234";
+    public String accessToken="1234";
 
 
 //    @PostConstruct //스프링 시작시 초기화

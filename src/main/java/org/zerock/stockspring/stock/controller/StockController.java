@@ -24,6 +24,7 @@ public class StockController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    //주식 데이터 월 일 년 분
     @GetMapping("/daily")
     public ResponseEntity<DailyPriceResponseDTO> getDailyPrice(){
         DailyPriceResponseDTO response = stockService.getDailyPriceService();

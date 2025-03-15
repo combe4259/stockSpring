@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹소켓 테스트</title>
+</head>
+<body>
+<h1>한국투자증권 실시간 시세 테스트</h1>
+
+<form action="/api/stock/subscribe/005930" method="post">
+    <button type="submit">삼성전자(005930) 구독</button>
+</form>
+
+<form action="/api/stock/disconnect" method="post" style="margin-top: 20px;">
+    <button type="submit">웹소켓 연결 종료</button>
+</form>
+
+<div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+    결과가 여기에 표시됩니다.
+</div>
+
+<script>
+    // 폼 제출 시 비동기 처리
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            fetch(this.action, {
+                method: 'POST'
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('result').textContent = data;
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = '오류 발생: ' + error;
+                });
+        });
+    });
+</script>
+</body>
+</html>
