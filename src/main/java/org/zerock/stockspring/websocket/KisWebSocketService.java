@@ -24,8 +24,6 @@ public class KisWebSocketService implements StockDataListener {
     private final ApiConfig apiConfig;
     private final RestTemplate restTemplate;
 
-
-
     private KisWebSocketClient client;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.builder().build();

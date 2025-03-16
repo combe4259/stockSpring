@@ -190,6 +190,13 @@
         </div>
 
         <div id="dayPrice" class="tab-content active">
+            <div>
+                <label for="startDate">시작 날짜:</label>
+                <input type="date" id="startDate">
+                <label for="endDate">종료 날짜:</label>
+                <input type="date" id="endDate">
+                <button id="fetchDataButton">데이터 가져오기</button>
+            </div>
             <table>
                 <thead>
                 <tr>
@@ -255,19 +262,29 @@
 </div>
 
 <script>
-    // 가상의 API 응답 데이터를 사용해 구현합니다
-    // 실제 구현 시에는 fetch 등을 사용해 API를 호출하세요
     document.addEventListener('DOMContentLoaded', function() {
-        // 로딩 시 API 데이터 가져오기
-        fetchStockData();
+        const fetchDataButton = document.getElementById('fetchDataButton');
+        fetchDataButton.addEventListener('click', function() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            fetchStockData(startDate, endDate);
+        });
+
+        // Initial fetch with default dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+        fetchStockData(today, today);
     });
 
-    async function fetchStockData() {
-        try {
-            // 실제로는 API 호출 코드가 들어갑니다
-            const response = await fetch('/domestic-stock/daily');
-            const data = await response.json();
+    async function fetchStockData(startDate, endDate) {
+        const stockCode = '005930';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('content').style.display = 'none';
 
+        try {
+            const response = await fetch(`/domestic-stock/daily?stockCode=${stockCode}&startDate=${startDate}&endDate=${endDate}`);
+            const data = await response.json();
             displayStockData(data);
 
             document.getElementById('loading').style.display = 'none';

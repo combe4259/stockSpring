@@ -19,15 +19,15 @@ public class StockController {
 
     //현재가 시세 조회
     @GetMapping("/quotations")
-    public ResponseEntity<QuotationResponseDTO> getPresent(){
-        QuotationResponseDTO response = stockService.getPresentService();
+    public ResponseEntity<QuotationResponseDTO> getPresent(String stockCode){
+        QuotationResponseDTO response = stockService.getPresentService(stockCode);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //주식 데이터 월 일 년 분
     @GetMapping("/daily")
-    public ResponseEntity<DailyPriceResponseDTO> getDailyPrice(){
-        DailyPriceResponseDTO response = stockService.getDailyPriceService();
+    public ResponseEntity<DailyPriceResponseDTO> getDailyPrice(String stockCode,String startDate,String endDate){
+        DailyPriceResponseDTO response = stockService.getDailyPriceService(stockCode,startDate,endDate);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

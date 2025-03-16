@@ -20,11 +20,12 @@ public class AccessTokenService {
     private final ApiConfig apiConfig;
     private final RestTemplate restTemplate;
 
-    public String accessToken="1234";
+    public String accessToken;
+    private boolean initialized = false;
 
 
-//    @PostConstruct //스프링 시작시 초기화
-//    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")   // 매일 자정에 증권사 API 접근 토큰 자동 발급
+//    @PostConstruct
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")   // 매일 자정에 증권사 API 접근 토큰 자동 발급
     public void generateAccessToken() {
 
         log.info("API 토근 발급 시작");
@@ -57,6 +58,15 @@ public class AccessTokenService {
     }
 
     public String getAccessToken(){
+        if(accessToken == null && !initialized){
+            try {
+                generateAccessToken();;
+                initialized = true;
+            }catch (Exception e){
+                log.error("토큰 발급 실패");
+                return null;
+            }
+        }
         log.info("발급된 access token 반환");
         return this.accessToken;
     }

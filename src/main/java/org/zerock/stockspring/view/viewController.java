@@ -2,9 +2,11 @@ package org.zerock.stockspring.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class portfolioviewController {
+@RequestMapping("/view")
+public class viewController {
 
     @GetMapping("/portfolioview")
     public String portfolioView(){
@@ -17,7 +19,7 @@ public class portfolioviewController {
     }
     @GetMapping("/dailyview")
     public String dailyView(){
-        return "dailyview.html";
+        return "dailyview";
     }
 
 

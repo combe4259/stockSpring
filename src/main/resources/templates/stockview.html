@@ -121,7 +121,7 @@
     <h1>주식 현재가 조회</h1>
 
     <div class="search-bar">
-        <input type="text" id="stockCode" placeholder="종목코드 입력 (예: 005930)" value="005930">
+        <input type="text" id="stockCodeInput" placeholder="종목코드 입력 (예: 005930)" value="005930">
         <button id="searchButton">조회</button>
     </div>
 
@@ -130,7 +130,7 @@
     <div id="content" style="display: none;">
         <div class="stock-header">
             <h2 class="stock-title" id="stockName">삼성전자</h2>
-            <span class="stock-code" id="stockCode">005930</span>
+            <span class="stock-code" id="stockCodeDisplay">005930</span>
         </div>
 
         <div class="section">
@@ -239,10 +239,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchButton = document.getElementById('searchButton');
-        const stockCodeInput = document.getElementById('stockCode');
+        const stockCodeInput = document.getElementById('stockCodeInput');
 
         // 기본 삼성전자 조회
-        fetchStockQuote('005930');
+        // fetchStockQuote('005930');
 
         // 검색 버튼 이벤트
         searchButton.addEventListener('click', function() {
@@ -269,7 +269,7 @@
 
         try {
             // API 호출 경로는 실제 구현에 맞게 수정 필요
-            const response = await fetch(`/domestic-stock/quotations`);
+            const response = await fetch(`/domestic-stock/quotations?stockCode=${stockCode}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -293,7 +293,7 @@
 
         // 종목 정보 표시
         document.getElementById('stockName').textContent = quote.bstp_kor_isnm;
-        document.getElementById('stockCode').textContent = quote.stck_shrn_iscd;
+        document.getElementById('stockCodeDisplay').textContent = quote.stck_shrn_iscd;
 
         // 주가 정보
         document.getElementById('currentPrice').textContent = formatNumber(quote.stck_prpr) + '원';

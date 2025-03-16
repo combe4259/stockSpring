@@ -39,12 +39,12 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public QuotationResponseDTO getPresentService() {
-        log.info("현재가 조회 시작");
+    public QuotationResponseDTO getPresentService(String stockCode) {
+        log.info("현재가 조회 시작" + stockCode);
         URI uri = UriComponentsBuilder
                 .fromUriString(apiConfig.getVdomain() + "/uapi/domestic-stock/v1/quotations/inquire-price")
                 .queryParam("FID_COND_MRKT_DIV_CODE", "J")
-                .queryParam("FID_INPUT_ISCD", "005930")//추후 동적 변경
+                .queryParam("FID_INPUT_ISCD", stockCode)//추후 동적 변경
                 .build()
                 .toUri();
         String trId = "FHKST01010100";
@@ -64,14 +64,14 @@ public class StockServiceImpl implements StockService {
 
     //일별 시세 조회
     @Override
-    public DailyPriceResponseDTO getDailyPriceService(){
+    public DailyPriceResponseDTO getDailyPriceService(String stockCode, String startDate, String endDate) {
         log.info("일별 시세 조회 시작");
         URI uri = UriComponentsBuilder
                 .fromUriString(apiConfig.getVdomain()+"/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice")
                 .queryParam("FID_COND_MRKT_DIV_CODE", "J")
-                .queryParam("FID_INPUT_ISCD", "005930")
-                .queryParam("FID_INPUT_DATE_1", "2022-01-01")
-                .queryParam("FID_INPUT_DATE_2", "2022-01-31")
+                .queryParam("FID_INPUT_ISCD", stockCode)
+                .queryParam("FID_INPUT_DATE_1", startDate)
+                .queryParam("FID_INPUT_DATE_2", endDate)
                 .queryParam("FID_PERIOD_DIV_CODE", "D")
                 .queryParam("FID_ORG_ADJ_PRC", "1")
                 .build()

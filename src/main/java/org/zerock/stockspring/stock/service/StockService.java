@@ -4,6 +4,6 @@ import org.zerock.stockspring.stock.dto.DailyPriceResponseDTO;
 import org.zerock.stockspring.stock.dto.QuotationResponseDTO;
 
 public interface StockService {
-    QuotationResponseDTO getPresentService();
-    DailyPriceResponseDTO getDailyPriceService();
+    QuotationResponseDTO getPresentService(String stockCode);
+    DailyPriceResponseDTO getDailyPriceService(String stockCode, String startDate, String endDate);
 }
