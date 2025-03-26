@@ -6,75 +6,149 @@
 </head>
 <body>
 <div class="container">
-  <!-- 주식 정보 섹션 -->
-  <div class="stock-info">
-    <h1>주식 상세 정보 <span th:text="${quotation.output.stck_shrn_iscd}"></span></h1>
+  <h1>주식 상세 정보 조회</h1>
+  <!-- 주식 종목 코드 입력-->
+  <div id="search-section">
+    <input type="text" id="stockCodeInput" placeholder="종목코드 입력">
+    <button id="searchButton">조회</button>
+  </div>
 
-    <div class="price-info">
-      <h2>현재가 정보</h2>
-      <table>
-        <tr>
-          <th>현재가</th>
-          <td th:text="${quotation.output.stck_prpr} + '원'">가격</td>
-        </tr>
-        <tr>
-          <th>전일 대비</th>
-          <td th:text="${quotation.output.prdy_vrss} + '원 (' + ${quotation.output.prdy_ctrt} + '%)'">변동</td>
-        </tr>
-        <tr>
-          <th>거래량</th>
-          <td th:text="${quotation.output.acml_vol}">거래량</td>
-        </tr>
-        <tr>
-          <th>거래대금</th>
-          <td th:text="${quotation.output.acml_tr_pbmn} + '원'">거래대금</td>
-        </tr>
-      </table>
-    </div>
+  <!-- 주식 정보 섹션 -->
+  <div id="stock-info">
+    <h2>주식 정보 로딩 중...</h2>
   </div>
 
   <!-- 게시글 목록 섹션 -->
-  <div class="board-list">
-    <h2>관련 게시글</h2>
-    <table>
-      <thead>
-      <tr>
-        <th>번호</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="board : ${dtoList.dtoList}">
-        <td th:text="${board.bno}">번호</td>
-        <td>
-          <a th:href="@{/board/read(bno=${board.bno})}" th:text="${board.title}">제목</a>
-        </td>
-        <td th:text="${board.writer}">작성자</td>
-      </tr>
-      <tr th:if="${dtoList.dtoList.size() == 0}">
-        <td colspan="4" class="no-data">관련 게시글이 없습니다.</td>
-      </tr>
-      </tbody>
-    </table>
-
-    <!-- 페이징 처리 -->
-    <div class="pagination" th:if="${dtoList.total > 0}">
-      <ul>
-        <li th:if="${dtoList.prev}">
-          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${dtoList.start - 1})}">&laquo;</a>
-        </li>
-        <li th:each="num : ${#numbers.sequence(dtoList.start, dtoList.end)}"
-            th:class="${num == dtoList.page} ? 'active' : ''">
-          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${num})}" th:text="${num}">1</a>
-        </li>
-        <li th:if="${dtoList.next}">
-          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${dtoList.end + 1})}">&raquo;</a>
-        </li>
-      </ul>
-    </div>
+  <div id="board-list">
+    <h2>관련 게시글 로딩 중...</h2>
   </div>
 </div>
+
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchButton = document.getElementById('searchButton');
+    const stockCodeInput = document.getElementById('stockCodeInput');
+
+    searchButton.addEventListener('click', function() {
+      const stockCode = stockCodeInput.value.trim();
+      if (stockCode) {
+        fetchStockInfo(stockCode);
+        fetchBoardList(stockCode);
+      }
+    });
+
+    stockCodeInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const stockCode = stockCodeInput.value.trim();
+        if (stockCode) {
+          fetchStockInfo(stockCode);
+          fetchBoardList(stockCode);
+        }
+      }
+    });
+  });
+  //주식 정보 가져오기
+  function fetchStockInfo(stockCode) {
+    fetch(`/domestic-stock/quotations?stockCode=${stockCode}`)
+            .then(response => response.json())
+            .then(data => {
+              const stockInfo = document.getElementById('stock-info');
+              if (data && data.output) {
+                stockInfo.innerHTML = `
+                        <h2>주식 상세 정보 (${data.output.stck_shrn_iscd})</h2>
+                        <div class="price-info">
+                            <h3>현재가 정보</h3>
+                            <table>
+                                <tr>
+                                    <th>현재가</th>
+                                    <td>${data.output.stck_prpr}원</td>
+                                </tr>
+                                <tr>
+                                    <th>전일 대비</th>
+                                    <td>${data.output.prdy_vrss}원 (${data.output.prdy_ctrt}%)</td>
+                                </tr>
+                                <tr>
+                                    <th>거래량</th>
+                                    <td>${data.output.acml_vol}</td>
+                                </tr>
+                                <tr>
+                                    <th>거래대금</th>
+                                    <td>${data.output.acml_tr_pbmn}원</td>
+                                </tr>
+                            </table>
+                        </div>
+                    `;
+              } else {
+                stockInfo.innerHTML = '<h2>주식 정보를 불러오는데 실패했습니다.</h2>';
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching stock info:', error);
+              document.getElementById('stock-info').innerHTML = '<h2>주식 정보를 불러오는데 실패했습니다.</h2>';
+            });
+  }
+  //게시판 정보 가져오기
+  function fetchBoardList(stockCode, page = 1) {
+    fetch(`/api/board/stock/${stockCode}?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+              const boardList = document.getElementById('board-list');
+              let html = `
+                    <h2>관련 게시글</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+              if (data.dtoList && data.dtoList.length > 0) {
+                data.dtoList.forEach(board => {
+                  html += `
+                            <tr>
+                                <td>${board.bno}</td>
+                                <td><a href="/board/read?bno=${board.bno}">${board.title}</a></td>
+                                <td>${board.writer}</td>
+                            </tr>
+                        `;
+                });
+              } else {
+                html += '<tr><td colspan="3">관련 게시글이 없습니다.</td></tr>';
+              }
+
+              html += `
+                        </tbody>
+                    </table>
+                `;
+
+              // 페이징 처리
+              if (data.total > 0) {
+                html += '<div class="pagination"><ul>';
+                if (data.prev) {
+                  html += `<li><a href="#" onclick="fetchBoardList('${stockCode}', ${data.start - 1}); return false;">&laquo;</a></li>`;
+                }
+                for (let i = data.start; i <= data.end; i++) {
+                  html += `<li class="${i === data.page ? 'active' : ''}">
+                                  <a href="#" onclick="fetchBoardList('${stockCode}', ${i}); return false;">${i}</a>
+                                 </li>`;
+                }
+                if (data.next) {
+                  html += `<li><a href="#" onclick="fetchBoardList('${stockCode}', ${data.end + 1}); return false;">&raquo;</a></li>`;
+                }
+                html += '</ul></div>';
+              }
+
+              boardList.innerHTML = html;
+            })
+            .catch(error => {
+              console.error('Error fetching board list:', error);
+              document.getElementById('board-list').innerHTML = '<h2>게시글 목록을 불러오는데 실패했습니다.</h2>';
+            });
+  }
+</script>
 </body>
 </html>
