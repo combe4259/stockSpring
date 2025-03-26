@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,7 +118,7 @@
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" >
     <h1>주식 현재가 조회</h1>
 
     <div class="search-bar">
@@ -234,7 +235,10 @@
             </div>
         </div>
     </div>
+
 </div>
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -242,7 +246,7 @@
         const stockCodeInput = document.getElementById('stockCodeInput');
 
         // 기본 삼성전자 조회
-        // fetchStockQuote('005930');
+        fetchStockQuote('005930');
 
         // 검색 버튼 이벤트
         searchButton.addEventListener('click', function() {
@@ -268,7 +272,6 @@
         document.getElementById('content').style.display = 'none';
 
         try {
-            // API 호출 경로는 실제 구현에 맞게 수정 필요
             const response = await fetch(`/domestic-stock/quotations?stockCode=${stockCode}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -349,7 +352,9 @@
 
         // 거래대금
         document.getElementById('tradeValue').textContent = formatLargeNumber(quote.acml_tr_pbmn) + '원';
+
     }
+
 
     function formatNumber(num) {
         if (!num) return '0';
@@ -383,6 +388,8 @@
             return formatNumber(n);
         }
     }
+
+
 </script>
 </body>
 </html>

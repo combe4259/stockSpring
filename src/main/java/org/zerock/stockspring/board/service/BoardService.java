@@ -19,4 +19,6 @@ public interface BoardService {
     void remove(Long bno);
     //게시판 목록
     PageResponseDTO<BoardDTO> list(PageRequestDTO pageRequestDTO);
+
+    PageResponseDTO<BoardDTO> listByStockCode(Long stockCode, PageRequestDTO pageRequestDTO);
 }

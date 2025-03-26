@@ -6,10 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.stockspring.board.dto.BoardDTO;
 import org.zerock.stockspring.board.dto.PageRequestDTO;
@@ -39,18 +36,18 @@ public class BoardController {
         log.info("=========Board GET Register========");
     }
     //게시물 등록 POST
-    @PostMapping("/register")
-    public String registerPost(@Valid BoardDTO boardDTO,BindingResult bindingResult, RedirectAttributes redirectAttributes){
-        log.info("=========Board Post Register========");
-        if(bindingResult.hasErrors()){
-            log.info("errors");
-            redirectAttributes.addFlashAttribute("errors",bindingResult.getAllErrors());
-            return "redirect:/board/register";
-        }
-        Long bno = boardService.register(boardDTO);
-        redirectAttributes.addFlashAttribute("result",bno);
-        return "redirect:/board/list";
-    }
+//    @PostMapping("/register")
+//    public String registerPost(@Valid BoardDTO boardDTO,BindingResult bindingResult, RedirectAttributes redirectAttributes){
+//        log.info("=========Board Post Register========");
+//        if(bindingResult.hasErrors()){
+//            log.info("errors");
+//            redirectAttributes.addFlashAttribute("errors",bindingResult.getAllErrors());
+//            return "redirect:/board/register";
+//        }
+//        Long bno = boardService.register(boardDTO);
+//        redirectAttributes.addFlashAttribute("result",bno);
+//        return "redirect:/board/list";
+//    }
     //게시물 조회&수정
     @GetMapping({"/read","modify"})
     public void read(Long bno,PageRequestDTO pageRequestDTO, Model model){
@@ -86,4 +83,29 @@ public class BoardController {
     }
 
 
+
+
+
+//    -------------
+
+
+    @PostMapping("/register")
+    public String registerPost(@Valid BoardDTO boardDTO,BindingResult bindingResult,RedirectAttributes redirectAttributes){
+        if(bindingResult.hasErrors()) {
+            log.info("errors");
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+
+            // stockCode가 있으면 해당 코드의 등록 페이지로 리다이렉트
+            if(boardDTO.getStockCode() != null) {
+                return "redirect:/board/register/" + boardDTO.getStockCode();
+            }
+            return "redirect:/board/register";
+        }
+        Long bno = boardService.register(boardDTO);
+        redirectAttributes.addFlashAttribute("result", bno);
+        if(boardDTO.getStockCode() != null) {
+            return "redirect:/board/stock/" + boardDTO.getStockCode();
+        }
+        return "redirect:/board/list";
+    }
 }

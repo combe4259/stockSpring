@@ -32,7 +32,6 @@ public class StockServiceImpl implements StockService {
     private HttpHeaders baseHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("authorization", "Bearer " + accessTokenService.getAccessToken());
-        log.info("이거 잘 되나요 !!!!!!"+accessTokenService.getAccessToken());
         headers.set("appkey", apiConfig.getAppKey());
         headers.set("appsecret", apiConfig.getAppSecret());
         return headers;

@@ -6,4 +6,5 @@ import org.zerock.stockspring.board.entity.Board;
 
 public interface BoardSearch {
     Page<Board> searchAll(String[] types, String keyword, Pageable pageable);
+    Page<Board> searchByStockCode(Long stockCode, String[] types, String keyword, Pageable pageable);
 }
