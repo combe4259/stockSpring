@@ -17,6 +17,6 @@ public interface BoardService {
 
     //게시판 삭제
     void remove(Long bno);
-
+    //게시판 목록
     PageResponseDTO<BoardDTO> list(PageRequestDTO pageRequestDTO);
 }

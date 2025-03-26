@@ -17,6 +17,7 @@ public class viewController {
     public String stockView(){
         return "stockview.html";
     }
+
     @GetMapping("/dailyview")
     public String dailyView(){
         return "dailyview";

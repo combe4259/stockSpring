@@ -32,7 +32,6 @@
                     </div>
                     <div class="my-4">
                         <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
-                            <h5>[[${link}]]</h5>
                             <a th:href="|@{/board/list}?${link}|" class="text-decoration-none">
                                 <button type="button" class="btn btn-primary">List</button>
                             </a>

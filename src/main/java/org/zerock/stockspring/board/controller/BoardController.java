@@ -40,11 +40,14 @@ public class BoardController {
     }
     //게시물 등록 POST
     @PostMapping("/register")
-    public String registerPost(BoardDTO boardDTO, RedirectAttributes redirectAttributes){
+    public String registerPost(@Valid BoardDTO boardDTO,BindingResult bindingResult, RedirectAttributes redirectAttributes){
         log.info("=========Board Post Register========");
-        log.info("포스팅할 게시물"+ boardDTO);
+        if(bindingResult.hasErrors()){
+            log.info("errors");
+            redirectAttributes.addFlashAttribute("errors",bindingResult.getAllErrors());
+            return "redirect:/board/register";
+        }
         Long bno = boardService.register(boardDTO);
-        log.info("=========게시물 등록 성공========");
         redirectAttributes.addFlashAttribute("result",bno);
         return "redirect:/board/list";
     }

@@ -12,7 +12,7 @@ import org.zerock.stockspring.board.entity.QBoard;
 import java.util.List;
 
 public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
-
+    //Querydsl 도메인 Board 전달
     public BoardSearchImpl(){
         super(Board.class);
     }
@@ -40,6 +40,7 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
             query.where(booleanBuilder);
         }
         query.where(board.bno.gt(0L));
+        //pagination 적용
         this.getQuerydsl().applyPagination(pageable,query);
 
         List<Board> list = query.fetch();

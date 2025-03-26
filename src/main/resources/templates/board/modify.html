@@ -14,7 +14,7 @@
           Board Modify
         </div>
         <div class="card-body">
-          <form th:action="@{/board/modify}" method="post" id="f1">
+          <form action="/board/modify" method="post" id="f1">
             <div class="input-group mb-3">
               <span class="input-group-text">Bno</span>
               <input type="text" class="form-control" th:value="${dto.bno}" name="bno" readonly>
@@ -46,6 +46,7 @@
 </div>
 
 <script layout:fragment="script" th:inline="javascript">
+  //에러 처리
   const errors = [[${errors}]]
   console.log(errors)
 
@@ -57,6 +58,7 @@
     history.replaceState({}, null, null)
     alert(errorMsg)
   }
+
   const link = [[${pageRequestDTO.getLink()}]]
   const formObj = document.querySelector("#f1")
 

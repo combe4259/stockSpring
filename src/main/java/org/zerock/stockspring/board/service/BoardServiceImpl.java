@@ -61,7 +61,7 @@ public class BoardServiceImpl implements BoardService{
         String[] types = pageRequestDTO.getTypes();
         String keyword = pageRequestDTO.getKeyword();
         Pageable pageable = pageRequestDTO.getPageable("bno");
-
+        //pagination 적용 받아옴
         Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
 
         List<BoardDTO> dtoList = result.getContent().stream()
