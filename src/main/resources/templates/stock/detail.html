@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>주식 상세 정보</title>
+</head>
+<body>
+<div class="container">
+  <!-- 주식 정보 섹션 -->
+  <div class="stock-info">
+    <h1>주식 상세 정보 <span th:text="${quotation.output.stck_shrn_iscd}"></span></h1>
+
+    <div class="price-info">
+      <h2>현재가 정보</h2>
+      <table>
+        <tr>
+          <th>현재가</th>
+          <td th:text="${quotation.output.stck_prpr} + '원'">가격</td>
+        </tr>
+        <tr>
+          <th>전일 대비</th>
+          <td th:text="${quotation.output.prdy_vrss} + '원 (' + ${quotation.output.prdy_ctrt} + '%)'">변동</td>
+        </tr>
+        <tr>
+          <th>거래량</th>
+          <td th:text="${quotation.output.acml_vol}">거래량</td>
+        </tr>
+        <tr>
+          <th>거래대금</th>
+          <td th:text="${quotation.output.acml_tr_pbmn} + '원'">거래대금</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 게시글 목록 섹션 -->
+  <div class="board-list">
+    <h2>관련 게시글</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성일</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="board : ${dtoList.dtoList}">
+        <td th:text="${board.bno}">번호</td>
+        <td>
+          <a th:href="@{/board/read(bno=${board.bno})}" th:text="${board.title}">제목</a>
+        </td>
+        <td th:text="${board.writer}">작성자</td>
+      </tr>
+      <tr th:if="${dtoList.dtoList.size() == 0}">
+        <td colspan="4" class="no-data">관련 게시글이 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- 페이징 처리 -->
+    <div class="pagination" th:if="${dtoList.total > 0}">
+      <ul>
+        <li th:if="${dtoList.prev}">
+          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${dtoList.start - 1})}">&laquo;</a>
+        </li>
+        <li th:each="num : ${#numbers.sequence(dtoList.start, dtoList.end)}"
+            th:class="${num == dtoList.page} ? 'active' : ''">
+          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${num})}" th:text="${num}">1</a>
+        </li>
+        <li th:if="${dtoList.next}">
+          <a th:href="@{/stock/detail/{stockCode}(stockCode=${quotation.output.stck_shrn_iscd}, page=${dtoList.end + 1})}">&raquo;</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

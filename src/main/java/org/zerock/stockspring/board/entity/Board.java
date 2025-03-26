@@ -20,6 +20,8 @@ public class Board {
     @Column(length=50, nullable = false)
     private String writer;
 
+    private Long stockCode;
+
     public void change(String title, String content){
         this.title=title;
         this.content=content;
