@@ -14,22 +14,34 @@ import org.zerock.stockspring.board.service.BoardService;
 import org.zerock.stockspring.stock.dto.QuotationResponseDTO;
 import org.zerock.stockspring.stock.service.StockService;
 
+//@Controller
+//@RequiredArgsConstructor
+//@Log4j2
+//public class StockDetailController {
+//
+//    private final StockService stockService;
+//    private final BoardService boardService;
+//
+//    @GetMapping("/stock/detail/{stockCode}")
+//    public String stockDetail(@PathVariable String stockCode, @ModelAttribute PageRequestDTO pageRequestDTO, Model model){
+//        QuotationResponseDTO quotationResponseDTO = stockService.getPresentService(stockCode);
+//        model.addAttribute("quotation",quotationResponseDTO);
+//
+//        PageResponseDTO<BoardDTO> dtoList = boardService.listByStockCode(Long.parseLong(stockCode),pageRequestDTO);
+//        model.addAttribute("dtoList",dtoList);
+//
+//        return "stock/detail";
+//    }
+//}
+
 @Controller
 @RequiredArgsConstructor
 @Log4j2
 public class StockDetailController {
 
-    private final StockService stockService;
-    private final BoardService boardService;
-
     @GetMapping("/stock/detail/{stockCode}")
-    public String stockDetail(@PathVariable String stockCode, @ModelAttribute PageRequestDTO pageRequestDTO, Model model){
-        QuotationResponseDTO quotationResponseDTO = stockService.getPresentService(stockCode);
-        model.addAttribute("quotation",quotationResponseDTO);
-
-        PageResponseDTO<BoardDTO> dtoList = boardService.listByStockCode(Long.parseLong(stockCode),pageRequestDTO);
-        model.addAttribute("dtoList",dtoList);
-
+    public String stockDetail(@PathVariable String stockCode, Model model) {
+        model.addAttribute("stockCode", stockCode);
         return "stock/detail";
     }
 }

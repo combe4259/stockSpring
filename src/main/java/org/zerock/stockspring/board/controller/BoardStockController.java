@@ -19,8 +19,8 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 public class BoardStockController {
-    private final BoardService boardService;
 
+    private final BoardService boardService;
 
     @GetMapping("/stock/{stockCode}")
     public PageResponseDTO<BoardDTO> getStockBoardList(@PathVariable("stockCode") Long stockCode, PageRequestDTO pageRequestDTO){
