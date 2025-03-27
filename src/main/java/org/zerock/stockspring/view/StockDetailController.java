@@ -39,9 +39,8 @@ import org.zerock.stockspring.stock.service.StockService;
 @Log4j2
 public class StockDetailController {
 
-    @GetMapping("/stock/detail/{stockCode}")
-    public String stockDetail(@PathVariable String stockCode, Model model) {
-        model.addAttribute("stockCode", stockCode);
+    @GetMapping("/stock/detail")
+    public String stockDetail(Model model) {
         return "stock/detail";
     }
 }
