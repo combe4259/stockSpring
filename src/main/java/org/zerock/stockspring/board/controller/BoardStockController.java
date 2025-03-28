@@ -22,7 +22,7 @@ public class BoardStockController {
 
     private final BoardService boardService;
 
-    @GetMapping("/stock/{stockCode}")
+    @GetMapping("/stockBoard/{stockCode}")
     public PageResponseDTO<BoardDTO> getStockBoardList(@PathVariable("stockCode") Long stockCode, PageRequestDTO pageRequestDTO){
         log.info("=========Stock Board API List: " + stockCode + "========");
         PageResponseDTO<BoardDTO> responseDTO = boardService.listByStockCode(stockCode, pageRequestDTO);

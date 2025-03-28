@@ -234,8 +234,35 @@
       </div>
     </div>
   </div>
-</div>
+  <div class="section" id="board-section">
+    <h2>관련 게시글</h2>
+    <div class="card">
+      <div class="card-body">
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">제목</th>
+            <th scope="col">작성자</th>
+          </tr>
+          </thead>
+          <tbody id="board-list-body">
+          <tr>
+            <td colspan="3">게시글을 불러오는 중...</td>
+          </tr>
+          </tbody>
+        </table>
 
+        <div class="float-end">
+          <ul class="pagination flex-wrap" id="board-pagination">
+            <!-- 페이지네이션 버튼이 여기에 추가됩니다 -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script th:inline="javascript">
   document.addEventListener('DOMContentLoaded', function() {
@@ -282,11 +309,70 @@
 
   }
   //게시판 정보 가져오기
-  async function fetchBoardList(stockCode, page = 1) {
-    fetch(`/api/board/stock/${stockCode}?page=${page}`)
+  async function fetchBoardList(stockCode, page = 1, size = 10) {
+    try {
+      //const response = await fetch(`/api/board/stockBoard/${stockCode}?page=${page}&size=${size}`);
+      const response = await fetch(`/api/board/stockBoard/${stockCode}`);
+      if (!response.ok) {
+        throw new Error('게시글을 불러오는데 실패했습니다.');
+      }
+      const data = await response.json();
 
+      // 게시글 목록 업데이트
+      const boardListBody = document.getElementById('board-list-body');
+      const boardPagination = document.getElementById('board-pagination');
 
+      if (data.dtoList && data.dtoList.length > 0) {
+        // 게시글 목록 생성
+        let rows = '';
+        data.dtoList.forEach(board => {
+          rows += `
+          <tr>
+            <td>${board.bno}</td>
+            <td><a href="/board/read?bno=${board.bno}">${board.title}</a></td>
+            <td>${board.writer}</td>
+          </tr>
+        `;
+        });
+        boardListBody.innerHTML = rows;
+
+        // 페이지네이션 생성
+        let pagination = '';
+        if (data.prev) {
+          pagination += `<li class="page-item"><a class="page-link" href="#" onclick="fetchBoardList('${stockCode}', ${data.start - 1}, ${size}); return false;">Previous</a></li>`;
+        }
+
+        for (let i = data.start; i <= data.end; i++) {
+          pagination += `
+          <li class="page-item ${i === data.page ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="fetchBoardList('${stockCode}', ${i}, ${size}); return false;">${i}</a>
+          </li>
+        `;
+        }
+
+        if (data.next) {
+          pagination += `<li class="page-item"><a class="page-link" href="#" onclick="fetchBoardList('${stockCode}', ${data.end + 1}, ${size}); return false;">Next</a></li>`;
+        }
+
+        boardPagination.innerHTML = pagination;
+      } else {
+        boardListBody.innerHTML = '<tr><td colspan="3">관련 게시글이 없습니다.</td></tr>';
+        boardPagination.innerHTML = '';
+      }
+
+      // 게시글 섹션 표시
+      document.getElementById('board-section').style.display = 'block';
+
+    } catch (error) {
+      console.error('Error fetching board list:', error);
+      const boardListBody = document.getElementById('board-list-body');
+      boardListBody.innerHTML = '<tr><td colspan="3">게시글 목록을 불러오는데 실패했습니다.</td></tr>';
+    }
   }
+
+
+
+
   function displayStockInfo(data){
     if(!data||!data.output){
       document.getElementById('loading').textContent='종목 정보를 찾을 수 없습니다.';
